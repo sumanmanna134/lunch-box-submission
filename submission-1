@@ -1,88 +1,94 @@
-from collections import defaultdict, deque
+import java.util.*;
 
-# Graph represented using Adjacency List
-graph = defaultdict(list)
+public class Main {
 
-# Add an undirected edge
-def add_edge(u, v):
-    graph[u].append(v)
-    graph[v].append(u)
+    static Map<Integer, List<Integer>> graph = new HashMap<>();
 
-# Print the graph
-def print_graph():
-    print("Adjacency List:")
+    static void addEdge(int u, int v) {
+        graph.computeIfAbsent(u, k -> new ArrayList<>()).add(v);
+        graph.computeIfAbsent(v, k -> new ArrayList<>()).add(u);
+    }
 
-    for node in graph:
-        print(f"{node} -> ", end="")
+    // Print the graph
+    static void printGraph() {
+        System.out.println("Adjacency List:");
+        for (int node : graph.keySet()) {
+            System.out.print(node + " -> ");
+            for (int neighbor : graph.get(node)) {
+                System.out.print(neighbor + " ");
+            }
+            System.out.println();
+        }
+    }
 
-        for neighbor in graph[node]:
-            print(neighbor, end=" ")
+    // ================= DFS =================
 
-        print()
+    static void dfs(int node, Set<Integer> visited) {
 
-# ================= DFS =================
+        visited.add(node);
+        System.out.print(node + " ");
 
-def dfs(node, visited):
+        for (int neighbor : graph.getOrDefault(node, new ArrayList<>())) {
 
-    visited.add(node)
+            if (!visited.contains(neighbor)) {
+                dfs(neighbor, visited);
+            }
+        }
+    }
 
-    print(node, end=" ")
+    // ================= BFS =================
 
-    for neighbor in graph[node]:
+    static void bfs(int start) {
 
-        if neighbor not in visited:
-            dfs(neighbor, visited)
+        Queue<Integer> queue = new LinkedList<>();
+        Set<Integer> visited = new HashSet<>();
 
-# ================= BFS =================
+        queue.offer(start);
+        visited.add(start);
 
-def bfs(start):
+        while (!queue.isEmpty()) {
 
-    queue = deque([start])
-    visited = {start}
+            int node = queue.poll();
+            System.out.print(node + " ");
 
-    while queue:
+            for (int neighbor : graph.getOrDefault(node, new ArrayList<>())) {
 
-        node = queue.popleft()
+                if (!visited.contains(neighbor)) {
 
-        print(node, end=" ")
+                    visited.add(neighbor);
+                    queue.offer(neighbor);
+                }
+            }
+        }
+    }
 
-        for neighbor in graph[node]:
+    public static void main(String[] args) {
 
-            if neighbor not in visited:
+        /*
+                 1
+               /   \
+              2     3
+             / \   / \
+            4   5 6   7
+        */
 
-                visited.add(neighbor)
-                queue.append(neighbor)
+        addEdge(1, 2);
+        addEdge(1, 3);
+        addEdge(2, 4);
+        addEdge(2, 5);
+        addEdge(3, 6);
+        addEdge(3, 7);
 
+        printGraph();
 
-def main():
+        System.out.println();
 
-    """
-             1
-           /   \
-          2     3
-         / \   / \
-        4   5 6   7
-    """
+        System.out.print("DFS Traversal: ");
+        dfs(1, new HashSet<>());
 
-    add_edge(1, 2)
-    add_edge(1, 3)
-    add_edge(2, 4)
-    add_edge(2, 5)
-    add_edge(3, 6)
-    add_edge(3, 7)
+        System.out.println();
 
-    print_graph()
-
-    print()
-
-    print("DFS Traversal:", end=" ")
-    dfs(1, set())
-
-    print()
-
-    print("BFS Traversal:", end=" ")
-    bfs(1)
-
-
-if __name__ == "__main__":
-    main()
+        System.out.print("BFS Traversal: ");
+        bfs(1);
+    }
+}
